@@ -69,13 +69,16 @@ public class PersonServices {
 	public PersonVO update(PersonVO person) {
 		if(person == null) throw new RequiredObjectIsNullException();
 		logger.info("Updating person.");
+		Person test = DozerMapper.parseObject(person, Person.class);
 		Person entity = repository.findById(person.getPersonId())
 				.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 		entity.setFirstName(person.getFirstName());
 		entity.setLastName(person.getLastName());
 		entity.setAddress(person.getAddress());
 		entity.setGenre(person.getGenre());
-		Person entitySaved = repository.save(entity);
+		//é possivel passar o objeto que não foi buscado da database
+		//quando se quer atualizar o mesmo
+		Person entitySaved = repository.save(test);
 		PersonVO vo = DozerMapper.parseObject(entitySaved, PersonVO.class);
 		vo.add(linkTo(methodOn(PersonController.class).findById(vo.getPersonId())).withSelfRel());
 		return vo;
